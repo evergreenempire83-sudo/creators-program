@@ -200,8 +200,13 @@
       border: none;
       color: #666;
       cursor: pointer;
-      font-size: 1em;
+      font-size: 1.2em;
       padding: 5px;
+      transition: color 0.3s;
+    }
+
+    .password-toggle:hover {
+      color: var(--navy);
     }
 
     /* BUTTONS */
@@ -425,14 +430,14 @@
 
   <!-- HEADER -->
   <header>
-    <button class="menu-toggle" onclick="toggleMenu()"></button>
+    <button class="menu-toggle" onclick="toggleMenu()">☰</button>
     <div class="brand">EverGreen Empire</div>
     <nav id="nav-menu">
       <a href="index.html" onclick="closeMenu()">Home</a>
-      <a href="#about" onclick="closeMenu()">About</a>
-      <a href="#music" onclick="closeMenu()">Music Library</a>
-      <a href="signup.html" onclick="closeMenu()">Creator Signup</a>
-      <a href="#contact" onclick="closeMenu()">Contact</a>
+      <a href="about.html" onclick="closeMenu()">About</a>
+      <a href="index.html#music" onclick="closeMenu()">Music Library</a>
+      <a href="sign up.html" onclick="closeMenu()">Creator Signup</a>
+      <a href="index.html#contact" onclick="closeMenu()">Contact</a>
     </nav>
   </header>
 
@@ -455,7 +460,7 @@
           <label for="password">Password</label>
           <div class="password-container">
             <input type="password" id="password" placeholder="Enter your password" required />
-            <button type="button" class="password-toggle" onclick="togglePassword()"></button>
+            <button type="button" class="password-toggle" onclick="togglePassword()">👁️</button>
           </div>
         </div>
 
@@ -466,7 +471,7 @@
 
       <div class="links">
         <p><a href="#" onclick="showResetPassword()">Forgot your password?</a></p>
-        <p>Don't have an account? <a href="signup.html">Join EverGreen Empire</a></p>
+        <p>Don't have an account? <a href="sign up.html">Join EverGreen Empire</a></p>
       </div>
 
       <!-- Reset Password Form -->
@@ -492,7 +497,7 @@
   </div>
 
   <footer>
-    <p>� 2025 EverGreen Empire Ltd � All Rights Reserved</p>
+    <p>© 2025 EverGreen Empire Ltd — All Rights Reserved</p>
     <p><a href="mailto:support@evergreenempireltd.com">support@evergreenempireltd.com</a></p>
   </footer>
 
@@ -553,10 +558,10 @@
       
       if (passwordInput.type === 'password') {
         passwordInput.type = 'text';
-        toggleButton.textContent = '';
+        toggleButton.textContent = '🙈';
       } else {
         passwordInput.type = 'password';
-        toggleButton.textContent = '';
+        toggleButton.textContent = '👁️';
       }
     }
 
