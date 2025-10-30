@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creator Dashboard | EverGreen Empire</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root {
+      --navy: #071b3b;
+      --gold: #cda349;
+      --white: #ffffff;
+      --light: #f5f7fa;
+      --danger: #dc3545;
+      --success: #28a745;
+      --warning: #ffc107;
+      --info: #17a2b8;
+      --shadow: rgba(0,0,0,0.1);
+      --border-radius: 12px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      color: var(--navy);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .user-header {
+      background: var(--navy);
+      color: var(--white);
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px var(--shadow);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .user-header h1 {
+      font-size: 20px;
+      color: var(--gold);
+      text-align: center;
+      flex: 1;
+    }
+
+    .user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-email {
+      background: rgba(255,255,255,0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      display: none;
+    }
+
+    /* Mobile Menu Button */
+    .mobile-menu-btn {
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 12px;
+    }
+
+    /* Dropdown */
+    .dropdown {
+      position: fixed;
+      top: 0;
+      left: -280px;
+      width: 250px;
+      height: 100%;
+      background: var(--navy);
+      color: var(--white);
+      padding-top: 80px;
+      box-shadow: 3px 0 10px var(--shadow);
+      transition: left 0.4s ease;
+      z-index: 1000;
+      border-right: 2px solid var(--gold);
+      overflow-y: auto;
+    }
+
+    .dropdown.active {
+      left: 0;
+    }
+
+    .dropdown a, .dropdown button {
+      display: block;
+      background: none;
+      border: none;
+      color: var(--white);
+      width: 100%;
+      text-align: left;
+      padding: 15px 20px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: 0.3s;
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .dropdown a:hover, .dropdown button:hover {
+      background: var(--gold);
+      color: var(--navy);
+    }
+
+    .submenu {
+      display: none;
+      background: rgba(255,255,255,0.08);
+    }
+
+    .submenu a {
+      padding-left: 35px;
+      font-size: 13px;
+    }
+
+    .submenu.show {
+      display: block;
+    }
+
+    /* Main Content */
+    .user-main {
+      padding: 20px;
+      background: var(--white);
+      margin: 20px;
+      border-radius: var(--border-radius);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Dashboard Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: linear-gradient(135deg, var(--navy), #0a2458);
+      color: var(--white);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      text-align: center;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .stat-card h3 {
+      font-size: 14px;
+      margin-bottom: 15px;
+      color: var(--gold);
+    }
+
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: 700;
+      margin: 10px 0;
+    }
+
+    .last-updated {
+      font-size: 11px;
+      color: rgba(205, 163, 73, 0.7);
+      margin-top: 8px;
+      font-style: italic;
+    }
+
+    /* Contract Status */
+    .contract-status {
+      background: var(--light);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      margin-bottom: 25px;
+      text-align: center;
+      border-left: 4px solid var(--gold);
+    }
+
+    .contract-status h3 {
+      color: var(--navy);
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .contract-status .status {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    /* Withdrawal Section */
+    .withdrawal-section {
+      background: var(--light);
+      padding: 25px;
+      border-radius: var(--border-radius);
+      margin-top: 20px;
+    }
+
+    .withdrawal-status {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    /* Status Badges */
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: inline-block;
+      text-align: center;
+      min-width: 100px;
+    }
+
+    .status-pending {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .status-active {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-paid {
+      background: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status-rejected {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .status-processing {
+      background: #cce7ff;
+      color: #004085;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      margin: 5px;
+    }
+
+    .btn-primary {
+      background: var(--navy);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: #0a2458;
+      transform: translateY(-2px);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .btn-warning {
+      background: var(--warning);
+      color: var(--navy);
+    }
+
+    .btn:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* PayPal Info */
+    .paypal-info {
+      background: #f0f8ff;
+      border: 1px solid #0070ba;
+      border-radius: var(--border-radius);
+      padding: 20px;
+      margin: 20px 0;
+    }
+
+    .paypal-email {
+      color: #0070ba;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .no-paypal {
+      color: #666;
+      font-style: italic;
+      font-size: 13px;
+    }
+
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: var(--border-radius);
+      color: white;
+      font-weight: 600;
+      z-index: 10000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+      max-width: 300px;
+    }
+
+    .notification.show {
+      transform: translateX(0);
+    }
+
+    .notification.success {
+      background: var(--success);
+    }
+
+    .notification.error {
+      background: var(--danger);
+    }
+
+    .notification.info {
+      background: var(--navy);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 2000;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: var(--border-radius);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.3s;
+      flex: 1;
+      min-width: 120px;
+    }
+
+    .modal-btn.primary {
+      background: var(--navy);
+      color: white;
+    }
+
+    .modal-btn.secondary {
+      background: #ccc;
+      color: var(--navy);
+    }
+
+    /* Footer */
+    footer {
+      background: var(--white);
+      color: var(--gold);
+      text-align: center;
+      padding: 20px 15px;
+      border-top: 1px solid var(--gold);
+      font-size: 12px;
+      letter-spacing: 0.5px;
+      z-index: 5;
+      margin-top: auto;
+    }
+
+    /* Mobile Styles */
+    @media (max-width: 768px) {
+      .user-header {
+        padding: 12px 15px;
+      }
+
+      .user-header h1 {
+        font-size: 16px;
+      }
+
+      .user-main {
+        margin: 10px;
+        padding: 15px;
+      }
+
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+      }
+
+      .stat-card {
+        padding: 20px;
+        min-height: 120px;
+      }
+
+      .stat-card .number {
+        font-size: 28px;
+      }
+
+      .dropdown {
+        width: 100%;
+        left: -100%;
+      }
+
+      .user-email {
+        display: none;
+      }
+
+      .withdrawal-status {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .user-email {
+        display: inline-block;
+      }
+    }
+
+    /* Loading Spinner */
+    .loading {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid #f3f3f3;
+      border-top: 2px solid var(--gold);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Quick Actions */
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+      margin: 25px 0;
+    }
+
+    .action-card {
+      background: var(--white);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      border: 1px solid #e0e0e0;
+    }
+
+    .action-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .action-card i {
+      font-size: 24px;
+      margin-bottom: 10px;
+      color: var(--gold);
+    }
+
+    .action-card h4 {
+      font-size: 14px;
+      color: var(--navy);
+    }
+
+    /* Overlay for dropdown */
+    .dropdown-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+
+    .dropdown-overlay.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Notification -->
+  <div id="notification" class="notification"></div>
+
+  <!-- Dropdown Overlay -->
+  <div class="dropdown-overlay" id="dropdownOverlay" onclick="closeMenu()"></div>
+
+  <!-- Withdrawal Modal -->
+  <div id="withdrawalModal" class="modal">
+    <div class="modal-content">
+      <h3>Request Withdrawal</h3>
+      <div class="paypal-info">
+        <p><strong>PayPal Email:</strong> <span id="currentPaypalEmail">Loading...</span></p>
+      </div>
+      <p>Available Balance: <strong id="availableBalance">€0.00</strong></p>
+      <input type="number" id="withdrawalAmount" placeholder="Enter amount in €" min="1" step="0.01">
+      <div class="modal-buttons">
+        <button class="modal-btn secondary" onclick="closeModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="submitWithdrawal()" id="submitWithdrawalBtn">
+          Submit Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PayPal Settings Modal -->
+  <div id="paypalModal" class="modal">
+    <div class="modal-content">
+      <h3>PayPal Payment Settings</h3>
+      <p>Add your PayPal email to receive payments</p>
+      
+      <input type="email" id="paypalEmail" placeholder="your-email@paypal.com">
+      
+      <div class="modal-buttons">
+        <button class="modal-btn secondary" onclick="closePayPalModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="savePayPalEmail()" id="savePaypalBtn">
+          Save PayPal Email
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="user-header">
+    <button class="mobile-menu-btn" onclick="toggleMenu()">☰ Menu</button>
+    <h1>EverGreen Empire - Creator Dashboard</h1>
+    <div class="user-info">
+      <span class="user-email" id="userEmail">user@example.com</span>
+    </div>
+  </header>
+
+  <!-- Dropdown Menu -->
+  <div class="dropdown" id="dropdownMenu">
+    <button onclick="toggleSubmenu('settingsMenu')">Settings ▾</button>
+    <div class="submenu" id="settingsMenu">
+      <a href="#" onclick="openPayPalModal()">PayPal Settings</a>
+    </div>
+    <a href="#" onclick="openWithdrawalModal()">Withdraw Funds</a>
+    <a href="#" onclick="logout()">Logout</a>
+  </div>
+
+  <!-- Main Content -->
+  <main class="user-main">
+    <!-- Stats Dashboard -->
+    <div class="dashboard-grid">
+      <div class="stat-card" id="totalViewsCard">
+        <h3>Total Views</h3>
+        <p class="number" id="totalViews">0</p>
+        <div class="last-updated" id="viewsUpdated">Just started</div>
+      </div>
+      <div class="stat-card" id="monetizedViewsCard">
+        <h3>Monetized Views</h3>
+        <p class="number" id="monetizedViews">0</p>
+        <div class="last-updated" id="monetizedUpdated">Just started</div>
+      </div>
+      <div class="stat-card" id="availableBalanceCard">
+        <h3>Available Balance (€)</h3>
+        <p class="number" id="availableBalanceAmount">€0.00</p>
+        <div class="last-updated" id="balanceUpdated">Just started</div>
+      </div>
+      <div class="stat-card" id="totalRevenueCard">
+        <h3>Total Revenue (€)</h3>
+        <p class="number" id="totalRevenue">€0.00</p>
+        <div class="last-updated" id="revenueUpdated">Just started</div>
+      </div>
+    </div>
+
+    <!-- Contract Status -->
+    <div class="contract-status">
+      <h3>Contract Status</h3>
+      <p class="status" id="contractStatus">Active</p>
+      <div class="last-updated" id="contractUpdated">Ready to earn</div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+      <div class="action-card" onclick="openWithdrawalModal()">
+        <div>💰</div>
+        <h4>Withdraw Funds</h4>
+      </div>
+      <div class="action-card" onclick="openPayPalModal()">
+        <div>📧</div>
+        <h4>PayPal Settings</h4>
+      </div>
+      <div class="action-card" onclick="refreshStats()">
+        <div>🔄</div>
+        <h4>Refresh Stats</h4>
+      </div>
+    </div>
+
+    <!-- Withdrawal Section -->
+    <div class="withdrawal-section">
+      <div class="withdrawal-status">
+        <div>
+          <h3>Withdrawal Status: <span id="withdrawStatus" class="status-badge status-pending">No Data</span></h3>
+          <p id="withdrawalDetails" style="font-size: 12px; color: #666; margin-top: 5px;">No withdrawal requests yet</p>
+        </div>
+        <button class="btn btn-primary" id="withdrawBtn" onclick="openWithdrawalModal()">
+          Request Withdrawal
+        </button>
+      </div>
+
+      <!-- PayPal Info Display -->
+      <div class="paypal-info" id="paypalDisplay">
+        <p><strong>Payment Method:</strong> 
+          <span id="paypalStatus" class="no-paypal">PayPal email not set</span>
+        </p>
+        <button class="btn btn-warning" onclick="openPayPalModal()" style="margin-top: 10px;">
+          Update PayPal
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 EverGreen Empire Ltd. All Rights Reserved.
+  </footer>
+
+  <script>
+    // Supabase Configuration
+    const SUPABASE_URL = 'https://saerrnuzddfxfthllvpr.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNhZXJybnV6ZGRmeGZ0aGxsdnByIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MjM0OTIsImV4cCI6MjA3NzM5OTQ5Mn0.u7f365U3CFFq_BF2NSnT9WhDGw0bZ8PjnmzphCwYPMM';
+    
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Global variables
+    let currentUser = null;
+
+    // Notification System
+    function showNotification(message, type = 'info') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type} show`;
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, 5000);
+    }
+
+    // Menu Functions
+    function toggleMenu() {
+      const menu = document.getElementById('dropdownMenu');
+      const overlay = document.getElementById('dropdownOverlay');
+      menu.classList.toggle('active');
+      overlay.classList.toggle('active');
+    }
+
+    function closeMenu() {
+      const menu = document.getElementById('dropdownMenu');
+      const overlay = document.getElementById('dropdownOverlay');
+      menu.classList.remove('active');
+      overlay.classList.remove('active');
+      document.querySelectorAll('.submenu.show').forEach(submenu => {
+        submenu.classList.remove('show');
+      });
+    }
+
+    function toggleSubmenu(id) {
+      const submenu = document.getElementById(id);
+      submenu.classList.toggle('show');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+      const dropdown = document.getElementById('dropdownMenu');
+      const menuBtn = document.querySelector('.mobile-menu-btn');
+      const overlay = document.getElementById('dropdownOverlay');
+      
+      if (!dropdown.contains(event.target) && !menuBtn.contains(event.target) && dropdown.classList.contains('active')) {
+        closeMenu();
+      }
+    });
+
+    // Check Authentication
+    async function checkAuth() {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) throw error;
+        
+        if (!session) {
+          showNotification('Please login to access dashboard', 'error');
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+          return false;
+        }
+
+        currentUser = session.user;
+        return true;
+      } catch (error) {
+        console.error('Auth error:', error);
+        showNotification('Authentication error', 'error');
+        return false;
+      }
+    }
+
+    // Load User Stats - ALL ZEROS
+    async function loadUserStats() {
+      try {
+        const isAuthenticated = await checkAuth();
+        if (!isAuthenticated) return;
+
+        document.getElementById('userEmail').textContent = currentUser.email;
+
+        // Set all stats to 0 for clean look
+        setDefaultStats();
+
+        await loadPayPalInfo();
+        await loadLatestWithdrawalStatus();
+
+      } catch (error) {
+        console.error('Error loading stats:', error);
+        showNotification('Error loading dashboard data', 'error');
+        setDefaultStats();
+      }
+    }
+
+    // Set all stats to 0
+    function setDefaultStats() {
+      document.getElementById('totalViews').textContent = '0';
+      document.getElementById('monetizedViews').textContent = '0';
+      document.getElementById('availableBalanceAmount').textContent = '€0.00';
+      document.getElementById('totalRevenue').textContent = '€0.00';
+      document.getElementById('contractStatus').textContent = 'Active';
+      
+      const withdrawBtn = document.getElementById('withdrawBtn');
+      withdrawBtn.disabled = true;
+      withdrawBtn.textContent = 'No Balance Available';
+      
+      document.querySelectorAll('.last-updated').forEach(el => {
+        el.textContent = `Just started`;
+      });
+    }
+
+    // Load PayPal Information
+    async function loadPayPalInfo() {
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('paypal_email')
+          .eq('id', currentUser.id)
+          .single();
+            
+        if (error) throw error;
+
+        const hasPayPal = profile.paypal_email && profile.paypal_email.trim() !== '';
+        const paypalStatus = document.getElementById('paypalStatus');
+        const paypalDisplay = document.getElementById('paypalDisplay');
+        
+        if (hasPayPal) {
+          paypalStatus.innerHTML = `<span class="paypal-email">${profile.paypal_email}</span>`;
+          paypalStatus.className = 'paypal-email';
+          paypalDisplay.style.background = '#d4edda';
+          paypalDisplay.style.borderColor = '#28a745';
+        } else {
+          paypalStatus.textContent = 'PayPal email not set';
+          paypalStatus.className = 'no-paypal';
+          paypalDisplay.style.background = '#f8d7da';
+          paypalDisplay.style.borderColor = '#dc3545';
+        }
+      } catch (error) {
+        console.error('Error loading PayPal info:', error);
+      }
+    }
+
+    // Load latest withdrawal status
+    async function loadLatestWithdrawalStatus() {
+      try {
+        const { data: withdrawals, error } = await supabase
+          .from('withdrawal_requests')
+          .select('*')
+          .eq('creator_id', currentUser.id)
+          .order('requested_at', { ascending: false })
+          .limit(1);
+
+        if (error) throw error;
+
+        if (withdrawals && withdrawals.length > 0) {
+          const latestWithdrawal = withdrawals[0];
+          document.getElementById('withdrawStatus').textContent = latestWithdrawal.status;
+          document.getElementById('withdrawStatus').className = `status-badge ${getStatusClass(latestWithdrawal.status)}`;
+          
+          const withdrawalDetails = document.getElementById('withdrawalDetails');
+          if (latestWithdrawal.status === 'pending') {
+            withdrawalDetails.textContent = 'Your withdrawal request is pending admin approval.';
+          } else if (latestWithdrawal.status === 'processing') {
+            withdrawalDetails.textContent = 'Your withdrawal is being processed.';
+          } else if (latestWithdrawal.status === 'paid') {
+            withdrawalDetails.textContent = `Withdrawal completed on ${new Date(latestWithdrawal.processed_at).toLocaleDateString()}.`;
+          } else if (latestWithdrawal.status === 'rejected') {
+            withdrawalDetails.textContent = latestWithdrawal.admin_notes || 'Withdrawal request was rejected.';
+          }
+        }
+      } catch (error) {
+        console.error('Error loading withdrawal status:', error);
+      }
+    }
+
+    // Get status CSS class
+    function getStatusClass(status) {
+      switch(status?.toLowerCase()) {
+        case 'active':
+        case 'paid':
+          return 'status-active';
+        case 'pending':
+          return 'status-pending';
+        case 'processing':
+          return 'status-processing';
+        case 'rejected':
+          return 'status-rejected';
+        default:
+          return 'status-pending';
+      }
+    }
+
+    // PayPal Functions
+    function openPayPalModal() {
+      closeMenu();
+      loadPayPalEmail();
+      document.getElementById('paypalModal').style.display = 'flex';
+    }
+
+    function closePayPalModal() {
+      document.getElementById('paypalModal').style.display = 'none';
+    }
+
+    async function loadPayPalEmail() {
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('paypal_email')
+          .eq('id', currentUser.id)
+          .single();
+            
+        if (error) throw error;
+        document.getElementById('paypalEmail').value = profile.paypal_email || '';
+      } catch (error) {
+        console.error('Error loading PayPal email:', error);
+      }
+    }
+
+    async function savePayPalEmail() {
+      const paypalEmail = document.getElementById('paypalEmail').value;
+      const saveBtn = document.getElementById('savePaypalBtn');
+      
+      if (!paypalEmail) {
+        showNotification('Please enter your PayPal email', 'error');
+        return;
+      }
+      
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(paypalEmail)) {
+        showNotification('Please enter a valid email address', 'error');
+        return;
+      }
+      
+      try {
+        saveBtn.innerHTML = '<span class="loading"></span>Saving...';
+        saveBtn.disabled = true;
+        
+        const { error } = await supabase
+          .from('profiles')
+          .update({ paypal_email: paypalEmail })
+          .eq('id', currentUser.id);
+            
+        if (error) throw error;
+        
+        showNotification('PayPal email saved successfully!', 'success');
+        closePayPalModal();
+        await loadPayPalInfo();
+        
+      } catch (error) {
+        console.error('Error saving PayPal email:', error);
+        showNotification('Error saving PayPal email', 'error');
+      } finally {
+        saveBtn.innerHTML = 'Save PayPal Email';
+        saveBtn.disabled = false;
+      }
+    }
+
+    // Withdrawal Functions
+    async function openWithdrawalModal() {
+      closeMenu();
+      
+      // Since we're showing all zeros, withdrawal is disabled
+      showNotification('Available balance is required for withdrawal', 'info');
+      return;
+    }
+
+    function closeModal() {
+      document.getElementById('withdrawalModal').style.display = 'none';
+      document.getElementById('paypalModal').style.display = 'none';
+    }
+
+    // Refresh Stats
+    function refreshStats() {
+      showNotification('Stats refreshed', 'success');
+      loadUserStats();
+    }
+
+    // Logout function
+    async function logout() {
+      closeMenu();
+      try {
+        const { error } = await supabase.auth.signOut();
+        if (error) throw error;
+        
+        showNotification('Logged out successfully', 'success');
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1500);
+      } catch (error) {
+        showNotification('Error logging out', 'error');
+      }
+    }
+
+    // Initialize dashboard
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuth().then(authenticated => {
+        if (authenticated) {
+          loadUserStats();
+        }
+      });
+
+      // Handle auth state changes
+      supabase.auth.onAuthStateChange((event, session) => {
+        console.log('Auth state changed:', event);
+        if (event === 'SIGNED_OUT') {
+          window.location.href = 'login.html';
+        } else if (event === 'SIGNED_IN') {
+          currentUser = session.user;
+          loadUserStats();
+        }
+      });
+    });
+
+    // Close modals when clicking outside
+    window.addEventListener('click', function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(modal => {
+        if (event.target === modal) {
+          modal.style.display = 'none';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

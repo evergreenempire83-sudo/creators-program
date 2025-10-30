@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EverGreen Empire – Learn More</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&family=Montserrat:wght@700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #001f3f;
+      --gold: #d4af37;
+      --white: #ffffff;
+      --light: #f5f7fa;
+      --shadow: rgba(0, 31, 63, 0.15);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+    body {
+      background: var(--white);
+      color: var(--navy);
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--white);
+      box-shadow: 0 2px 10px var(--shadow);
+      padding: 18px 8%;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      font-family: "Montserrat", sans-serif;
+      font-size: 2em;
+      font-weight: 800;
+      color: var(--navy);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      flex: 1;
+      text-align: center;
+    }
+
+    /* NAV MENU */
+    nav {
+      position: relative;
+    }
+
+    .menu-icon {
+      display: none;
+      font-size: 28px;
+      color: var(--navy);
+      cursor: pointer;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 25px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--navy);
+      font-weight: 500;
+      transition: 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--gold);
+    }
+
+    /* MOBILE MENU LEFT SIDE */
+    @media (max-width: 768px) {
+      .nav-links {
+        display: none;
+        flex-direction: column;
+        background: var(--white);
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 70%;
+        height: 100vh;
+        box-shadow: 3px 0 15px var(--shadow);
+        padding: 80px 20px;
+        text-align: left;
+        z-index: 999;
+        border-top-right-radius: 20px;
+      }
+
+      .nav-links a {
+        padding: 10px 0;
+        border-bottom: 1px solid #eee;
+        font-size: 0.85em; /* smaller text */
+      }
+
+      .nav-links.show {
+        display: flex;
+        animation: slideIn 0.3s ease forwards;
+      }
+
+      .menu-icon {
+        display: block;
+        position: absolute;
+        left: 8%;
+      }
+
+      @keyframes slideIn {
+        from { transform: translateX(-100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+      }
+    }
+
+    /* CONTENT SECTION */
+    section {
+      padding: 80px 8%;
+      text-align: left;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      font-family: "Montserrat", sans-serif;
+      font-size: 2em;
+      color: var(--navy);
+      margin-bottom: 20px;
+    }
+
+    p, ul {
+      line-height: 1.6;
+      font-size: 1.1em;
+      margin-bottom: 20px;
+    }
+
+    .learn-more ul {
+      list-style: none;
+      margin-left: 20px;
+    }
+
+    .learn-more li {
+      margin: 10px 0;
+    }
+
+    .learn-more li::before {
+      content: "✔";
+      margin-right: 10px;
+      color: var(--gold);
+    }
+
+    footer {
+      text-align: center;
+      background: var(--navy);
+      color: var(--white);
+      padding: 50px 15px;
+    }
+
+    footer a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+    <div class="brand">EverGreen Empire</div>
+    <nav>
+      <div class="nav-links" id="navMenu">
+        <a href="#">Home</a>
+        <a href="#about">About</a>
+        <a href="#partnership">Partnership</a>
+        <a href="#login">Login</a>
+        <a href="#signup">Creator Signup</a>
+        <a href="#contact">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- LEARN MORE CONTENT -->
+  <section>
+    <h2>Learn More About EverGreen Empire</h2>
+
+    <h3>1. Our Mission</h3>
+    <p>At EverGreen Empire, we believe that creators should not just be able to express their creativity but also earn from it. We provide a platform for creators to license premium music tracks, while receiving royalties for the content they produce using our music.</p>
+    
+    <h3>2. What We Offer</h3>
+    <p>EverGreen Empire offers the following:</p>
+    <ul>
+      <li><strong>Premium Music:</strong> Access a wide variety of music tracks suitable for video creators, gamers, influencers, and content producers.</li>
+      <li><strong>Creator Program:</strong> Join our program and start earning royalties by using our music in your content. We offer 30% royalties for every track used.</li>
+      <li><strong>Easy Dashboard:</strong> Track your earnings, performance, and statistics through our intuitive and transparent dashboard.</li>
+    </ul>
+
+    <h3>3. How It Works</h3>
+    <p>Joining our platform is simple:</p>
+    <ul>
+      <li><strong>Sign Up:</strong> Create an account and get verified by our team.</li>
+      <li><strong>Choose Tracks:</strong> Browse our extensive catalog of music and select tracks that fit your content.</li>
+      <li><strong>License and Use:</strong> Use the music in your videos or streams. We handle the royalty collection and payout.</li>
+      <li><strong>Earn Royalties:</strong> Receive monthly payments based on the usage of the tracks in your content.</li>
+    </ul>
+
+    <h3>4. Benefits for Creators</h3>
+    <p>As a creator, you get:</p>
+    <ul>
+      <li><strong>Ownership:</strong> Retain 30% of the revenue generated from your videos using our music.</li>
+      <li><strong>Transparency:</strong> Full visibility on your earnings, royalties, and track usage.</li>
+      <li><strong>Long-Term Collaboration:</strong> Work with EverGreen Empire for long-term opportunities and a sustainable revenue stream.</li>
+    </ul>
+
+    <h3>5. Why Choose EverGreen Empire?</h3>
+    <p>We’re different because we care about creators and their needs. Our platform was designed with the creator in mind, providing:</p>
+    <ul>
+      <li><strong>Fair Revenue Sharing:</strong> We believe in a fair 30% royalty split.</li>
+      <li><strong>Easy Integration:</strong> Quickly integrate our music into your content with minimal hassle.</li>
+      <li><strong>Community Support:</strong> Our team is dedicated to helping creators succeed and grow.</li>
+    </ul>
+
+    <h3>6. Get Started</h3>
+    <p>Ready to turn your views into royalties? Join the EverGreen Empire Creator Program today and start earning!</p>
+
+  </section>
+
+  <!-- FOOTER -->
+  <footer id="contact">
+    <p>Contact: <a href="mailto:support@evergreenempireltd.com">support@evergreenempireltd.com</a></p>
+    <p><a href="#">Terms & Conditions</a> | <a href="#">Privacy Policy</a> | <a href="#">Creator Agreement</a></p>
+    <p>© 2025 EverGreen Empire Ltd</p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      const nav = document.getElementById('navMenu');
+      nav.classList.toggle('show');
+    }
+  </script>
+
+</body>
+</html>
