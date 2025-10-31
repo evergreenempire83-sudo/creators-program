@@ -804,31 +804,51 @@
       return errors;
     }
 
-    // Enhanced user profile creation
+    // Enhanced user profile creation with better error handling
     async function createUserProfile(userId, userData) {
       try {
+        console.log('Creating profile for user:', userId);
+        
+        // Try to create the profile
         const { data, error } = await supabase
           .from('profiles')
-          .upsert({
+          .insert({
             id: userId,
             full_name: `${userData.firstName} ${userData.lastName}`,
             email: userData.email,
             youtube_channel: userData.channelName,
-            content_type: formData.contentType,
+            content_type: userData.contentType,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          }, {
-            onConflict: 'id'
-          });
+          })
+          .select();
 
         if (error) {
           console.warn('Profile creation warning:', error);
-          // Don't throw error - allow user to continue
+          
+          // If it's a duplicate error, profile might already exist - that's OK
+          if (error.code === '23505') {
+            console.log('Profile already exists, continuing...');
+            return true;
+          }
+          
+          // If it's a policy error, the table might not have proper RLS setup
+          if (error.code === '42501') {
+            console.warn('RLS policy issue, but user was created successfully');
+            return true; // Still return true since auth user was created
+          }
+          
+          // For other errors, log but don't block registration
+          console.error('Non-critical profile error:', error);
+          return true;
         }
+
+        console.log('Profile created successfully');
         return true;
+        
       } catch (error) {
-        console.error('Profile creation error:', error);
-        // Don't block registration if profile creation fails
+        console.error('Unexpected error in profile creation:', error);
+        // Don't throw - allow user registration to succeed
         return true;
       }
     }
@@ -859,24 +879,15 @@
         }
 
         if (authData.user) {
-          // Create user profile in background
+          // Create user profile in background (don't wait for it to complete)
           createUserProfile(authData.user.id, userData).catch(console.error);
           
-          showNotification('🎉 Account created successfully! Redirecting...', 'success');
+          showNotification('🎉 Account created successfully! Please check your email to confirm your account.', 'success');
           
-          // Auto-login the user
-          setTimeout(async () => {
-            const { error: signInError } = await supabase.auth.signInWithPassword({
-              email: userData.email,
-              password: userData.password
-            });
-
-            if (!signInError) {
-              window.location.href = 'dashboard.html?signup=success';
-            } else {
-              window.location.href = 'login.html?signup=success&email=' + encodeURIComponent(userData.email);
-            }
-          }, 2000);
+          // Redirect to login page after successful signup
+          setTimeout(() => {
+            window.location.href = 'login.html?signup=success&email=' + encodeURIComponent(userData.email);
+          }, 3000);
           
           return true;
         }
@@ -919,8 +930,9 @@
         await signUpUser(formData);
       } catch (error) {
         console.error('Signup error:', error);
-        showNotification(error.message);
+        showNotification(error.message || 'An unexpected error occurred. Please try again.');
         
+        // Reset button state
         signupBtn.disabled = false;
         signupBtn.classList.remove('loading');
         signupBtn.innerHTML = originalText;
@@ -949,6 +961,11 @@
     formInputs.forEach(input => {
       input.addEventListener('input', function() {
         this.classList.remove('error');
+        // Also clear any notifications when user starts typing
+        const notification = document.getElementById('notification');
+        if (notification.style.display !== 'none') {
+          notification.style.display = 'none';
+        }
       });
     });
 
@@ -979,4 +996,4 @@
     });
   </script>
 </body>
-          </html>
+            </html>
